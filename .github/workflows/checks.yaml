@@ -1,0 +1,25 @@
+name: checks
+
+on: push
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  BRANCH: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  cisco:
+    name: check cisco chez
+    runs-on: ubuntu-22.04
+    steps:
+      - run: gh repo clone $GITHUB_REPOSITORY -- --branch $BRANCH --depth 1 
+      - run: cd $(basename $GITHUB_REPOSITORY) && wget https://github.com/letloop/cli/releases/latest/download/letloop.cisco-ubuntu-jammy-amd64 && chmod +x letloop.cisco-ubuntu-jammy-amd64
+      - run: cd $(basename $GITHUB_REPOSITORY) && make
+      - run: cd $(basename $GITHUB_REPOSITORY) && LD_LIBRARY_PATH=$(pwd) ./letloop.cisco-ubuntu-jammy-amd64 check .
+  racket:
+    name: check racket chez
+    runs-on: ubuntu-22.04
+    steps:
+      - run: gh repo clone $GITHUB_REPOSITORY -- --branch $BRANCH --depth 1
+      - run: cd $(basename $GITHUB_REPOSITORY) && wget https://github.com/letloop/cli/releases/latest/download/letloop.racket-ubuntu-jammy-amd64 && chmod +x letloop.racket-ubuntu-jammy-amd64
+      - run: cd $(basename $GITHUB_REPOSITORY) && make
+      - run: cd $(basename $GITHUB_REPOSITORY) && LD_LIBRARY_PATH=$(pwd) ./letloop.racket-ubuntu-jammy-amd64 check .
